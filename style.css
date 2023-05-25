@@ -1,5 +1,5 @@
 html {
-    background-color: rgba(60, 60, 60);
+    background-image: linear-gradient(rgba(70, 70, 70, 1), rgba(40,40,40,1));
     color: whitesmoke;
     font-family: "Arial", serif;
 }
@@ -39,9 +39,11 @@ html {
 }
 
 .navbar {
+    background-color: rgba(60, 60, 60);
     border-radius: 50px;
     border: 1.75px solid black;
     text-align: center;
+
 }
 
 @keyframes rgb {
