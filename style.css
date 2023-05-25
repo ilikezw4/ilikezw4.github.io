@@ -1,0 +1,53 @@
+html{
+    background-color: rgba(60,60,60);
+    color: whitesmoke;
+    font-family: "Arial";
+}
+
+.headings{
+
+}
+
+.titles{
+
+}
+
+.buttons{
+    animation: rgb 30s ease infinite;
+    background-image: linear-gradient(to right, rgba(150,100,200, 0.5), rgba(50,200,150, 0.5));
+    margin: 1%;
+    border-radius: 25px;
+    width: 10%;
+    height: 5%;
+    text-align: center;
+    font-size: 115%;
+    color: whitesmoke;
+    border: 1px solid black;
+
+}
+
+
+.navbar{
+    border-radius: 50px;
+    border: 1.75px solid black;
+    text-align: center;
+}
+
+@keyframes rgb {
+    0%{
+        background-color: red;
+    }
+    25%{
+        background-color: darkorange;
+    }
+    50%{
+        background-color: blue;
+    }
+    75%{
+        background-color: green;
+    }
+    100%{
+        background-color: red;
+    }
+
+}
