@@ -1,5 +1,5 @@
 html {
-    background-image: linear-gradient(rgba(70, 70, 70, 1), rgba(40,40,40,1));
+    background-image: linear-gradient(rgba(70, 70, 70, 1), rgba(40, 40, 40, 1));
     color: whitesmoke;
     font-family: "Arial", serif;
 }
@@ -38,13 +38,27 @@ html {
     border: 1px solid black;
 }
 
+#CounterLabel {
+    border: 2px solid black;
+    border-radius: 25px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1%;
+    color: whitesmoke;
+    font-size: 115%;
+    text-align: center;
+    width: 10%;
+    height: 3%;
+}
+
 .navbar {
     background-color: rgba(60, 60, 60);
     border-radius: 50px;
     border: 1.75px solid black;
     text-align: center;
-
 }
+
 
 @keyframes rgb {
     0% {
