@@ -76,5 +76,11 @@ html {
     100% {
         background-color: red;
     }
-
+}
+input,
+textarea,
+button,
+select,
+a {
+    -webkit-tap-highlight-color: transparent;
 }
