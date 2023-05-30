@@ -1,18 +1,7 @@
 window.onload = async function () {
 
-    const resetButton = document.getElementById("ResetButton");
-    const clickButton = document.getElementById("ClickButton");
-    const counterLabel = document.getElementById("CounterLabel");
-    let counter = 0;
+    const homeButton = document.getElementById("HomeButton");
+    const abtMeButton = document.getElementById("AbtMeButton");
 
-
-    clickButton.onclick = function () {
-        counter++;
-        counterLabel.innerHTML = counter.toString();
-    }
-    resetButton.onclick = function () {
-        counter = 0;
-        counterLabel.innerHTML = counter.toString();
-    }
 
 }
