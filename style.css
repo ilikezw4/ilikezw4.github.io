@@ -26,6 +26,8 @@ html {
 }
 .navbar {
     background-image: linear-gradient(rgba(60, 60, 80, 0.8), rgba(35, 35, 35, 0.8));
+    backdrop-filter: blur(20px) saturate(160%) contrast(45%) brightness(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%) contrast(45%) brightness(140%);
     border-radius: 50px;
     border: 1.75px solid black;
     text-align: left;
