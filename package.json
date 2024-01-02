@@ -26,6 +26,8 @@
     "ionicons": "^7.0.0",
     "rxjs": "~7.8.0",
     "three": "^0.156.1",
+    "cannon-es": "^0.20.0",
+    "cannon-es-debugger": "^1.0.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"
   },
