@@ -1,57 +1,58 @@
 // imports ************************************************************************************************************
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import * as THREE from "three";
-import * as CANNON from "cannon-es";
-import CannonDebugger from "cannon-es-debugger";
-
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import * as THREE from 'three';
 import {
   BufferGeometry,
   Mesh,
-  MeshBasicMaterial, MeshPhongMaterial,
-  Object3DEventMap, PerspectiveCamera,
-  Scene, Texture,
-  WebGLRenderer
-} from "three";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-
+  MeshPhongMaterial,
+  MeshStandardMaterial,
+  PerspectiveCamera,
+  Scene,
+  Texture,
+  WebGLRenderer,
+} from 'three';
+import * as CANNON from 'cannon-es';
+import CannonDebugger from 'cannon-es-debugger';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
 })
-
 export class MainComponent implements AfterViewInit {
-
   constructor() {}
 
   // add viewchild for canvas
   @ViewChild('threeCanvas')
-
-// fields ***********************************************************************************************************
   private canvasRef!: ElementRef;
   private scene!: Scene;
   private camera!: PerspectiveCamera;
   private renderer!: WebGLRenderer;
-  private map!: Mesh<BufferGeometry, MeshPhongMaterial>
+  private map!: Mesh<BufferGeometry, MeshPhongMaterial>;
   private physicsWorld!: CANNON.World;
   private cannonDebugger!: any;
+  private cannonSphere!: CANNON.Body;
+  private threeSphere!: Mesh<BufferGeometry, MeshStandardMaterial>;
+  private terrainShape!: CANNON.ConvexPolyhedron;
+  private cannonTerrain!: CANNON.Body;
 
   ngAfterViewInit(): void {
     // Setup scene
     this.createScene();
+    // Setup physics world
+    this.createPhysicsWorld();
     // Render Loop
     requestAnimationFrame((delay) => this.render(delay));
   }
 
   private createScene() {
-
     // Setup scene and camera
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
     // Add renderer
-    this.renderer = new THREE.WebGLRenderer({canvas: this.canvasRef.nativeElement, alpha: true});
+    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvasRef.nativeElement, alpha: true });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     // Add directional light
@@ -70,39 +71,43 @@ export class MainComponent implements AfterViewInit {
     const loader = new THREE.TextureLoader();
     loader.load('assets/texture/HeightMap.jpg', (texture) => this.onTextureLoaded(texture));
 
-
+    // Create THREE Sphere
+    const sphereGeometry = new THREE.SphereGeometry(1);
+    const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+    this.threeSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    this.scene.add(this.threeSphere);
   }
 
   private createPhysicsWorld() {
-
     // Setup physics world
     this.physicsWorld = new CANNON.World({
       gravity: new CANNON.Vec3(0, -9.82, 0),
     });
 
-    // Add a Sphere to the physics world
-    this.physicsWorld.addBody(new CANNON.Body({
+    // Create CANNON Sphere
+    this.cannonSphere = new CANNON.Body({
       mass: 1,
       shape: new CANNON.Sphere(1),
       position: new CANNON.Vec3(0, 10, 0),
-    }));
+    });
+
+    // Add a Sphere to the physics world
+    this.physicsWorld.addBody(this.cannonSphere);
 
     // Add debugger for physics world
-    this.cannonDebugger = new (CannonDebugger as any)(this.scene, this.physicsWorld)
+    this.cannonDebugger = new (CannonDebugger as any)(this.scene, this.physicsWorld);
   }
-
 
   private render(delay: DOMHighResTimeStamp) {
     // render the scene
-    this.renderer.render(this.scene, this.camera)
+    this.renderer.render(this.scene, this.camera);
     // animate physics
     this.animate();
     // loop
-    requestAnimationFrame((delay) => this.render(delay))
+    requestAnimationFrame((delay) => this.render(delay));
   }
 
   private generateTerrain(imageData: ImageData) {
-
     // Create Buffer Arrays
     const indices: number[] = [];
     const vertices: number[] = [];
@@ -144,9 +149,10 @@ export class MainComponent implements AfterViewInit {
         const bottomRight = j + 1 + (i + 1) * imageData.width;
 
         // Upper triangles
-        indices.push(bottomLeft, topRight, topLeft);
+        indices.push(topLeft, topRight, bottomLeft);
         // Lower triangles
-        indices.push(bottomLeft, bottomRight, topRight);
+        indices.push(topRight, bottomRight, bottomLeft);
+
       }
     }
 
@@ -173,13 +179,33 @@ export class MainComponent implements AfterViewInit {
     // Create map mesh
     this.map = new THREE.Mesh(geometry, material);
     this.map.receiveShadow = true;
+
+    // Convert Three.js vertices to CANNON.Vec3
+    const cannonVertices: CANNON.Vec3[] = [];
+    for (let i = 0; i < vertices.length; i += 3) {
+      cannonVertices.push(new CANNON.Vec3(vertices[i], vertices[i + 1], vertices[i + 2]));
+    }
+
+    // Create CANNON ConvexPolyhedron
+    this.terrainShape = new CANNON.ConvexPolyhedron({
+      vertices: cannonVertices,
+      faces: this.chunkArray(indices, 3)
+    });
+
+    // Create CANNON Terrain Body
+    this.cannonTerrain = new CANNON.Body({
+      mass: 0,
+      shape: this.terrainShape,
+      position: new CANNON.Vec3(0, 0, 0),
+    });
+
     // Add map to scene
     this.scene.add(this.map);
+    // Add terrain to physics world
+    this.physicsWorld.addBody(this.cannonTerrain);
   }
 
-
   private onTextureLoaded(texture: Texture) {
-
     // create canvas
     const canvas = document.createElement('canvas');
     canvas.width = texture.image.width;
@@ -200,10 +226,35 @@ export class MainComponent implements AfterViewInit {
     this.generateTerrain(data);
   }
 
-  private animate() {
-    // update physics
-    this.physicsWorld.fixedStep();
-    this.cannonDebugger.update();
+  // Helper function to convert flat array to array of arrays
+  private chunkArray(array: number[], chunkSize: number): number[][] {
+    const result = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+      result.push(array.slice(i, i + chunkSize));
+    }
+    return result;
   }
 
+  private convertToThreeVector(cannonVector: CANNON.Vec3): THREE.Vector3 {
+    return new THREE.Vector3(cannonVector.x, cannonVector.y, cannonVector.z);
+  }
+
+  private convertToThreeQuaternion(cannonQuaternion: CANNON.Quaternion): THREE.Quaternion {
+    return new THREE.Quaternion(
+      cannonQuaternion.x,
+      cannonQuaternion.y,
+      cannonQuaternion.z,
+      cannonQuaternion.w
+    );
+  }
+
+  private animate() {
+    // update physics
+    this.physicsWorld.step(1 / 60);
+    this.cannonDebugger.update();
+
+    // link THREE Objects to CANNON Objects **************************************************************
+    this.threeSphere.position.copy(this.convertToThreeVector(this.cannonSphere.position));
+    this.threeSphere.quaternion.copy(this.convertToThreeQuaternion(this.cannonSphere.quaternion));
+  }
 }
