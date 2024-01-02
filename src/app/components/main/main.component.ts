@@ -68,7 +68,6 @@ export class MainComponent implements AfterViewInit {
     const indices: number[] = [];
     const vertices: number[] = [];
     const uvs: number[] = []; // Added UV coordinates
-    const colors: number[] = [];
     let yValues: number[] = [];
     let highestY: number = 0;
 
@@ -92,16 +91,6 @@ export class MainComponent implements AfterViewInit {
         uvs.push(x / (imageData.width - 1), z / (imageData.height - 1)); // Calculate UV coordinates
       }
     }
-
-    yValues.forEach(function (colorval: number) {
-      const color = Number((colorval / highestY).toPrecision(3));
-
-      let r = color > 0.8 ? 1 : color > 0.5 ? 200 / 255 : 0;
-      let g = color > 0.8 ? 1 : color > 0.5 ? 40 / 255 : 1;
-      let b = color > 0.8 ? 1 : color > 0.5 ? 20 / 255 : 0;
-
-      colors.push(r, g, b, 1);
-    });
 
     for (let i = 0; i < imageData.height - 1; i++) {
       for (let j = 0; j < imageData.width - 1; j++) {
