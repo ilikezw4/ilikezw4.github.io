@@ -34,9 +34,10 @@ export class MainComponent implements AfterViewInit {
   private physicsWorld!: CANNON.World;
   private cannonDebugger!: any;
   private cannonSphere!: CANNON.Body;
-  private threeSphere!: Mesh<BufferGeometry, MeshStandardMaterial>;
+  private threeSphere!: Mesh<BufferGeometry, MeshPhongMaterial>;
   private terrainShape!: CANNON.ConvexPolyhedron;
   private cannonTerrain!: CANNON.Body;
+  private directionalLight!: THREE.DirectionalLight;
 
   ngAfterViewInit(): void {
     // Setup scene
@@ -57,17 +58,18 @@ export class MainComponent implements AfterViewInit {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     // Add directional light
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(-10, 1, 0);
-    directionalLight.castShadow = true;
-    directionalLight.shadow.camera.top = 1;
-    this.scene.add(directionalLight);
-
+    this.directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
+    this.directionalLight.position.set(-30, 100, -10);
+    this.directionalLight.target.position.set(15, 30, 20);
+    this.directionalLight.castShadow = true;
+    this.directionalLight.shadow.camera.top = 1;
+    this.scene.add(this.directionalLight);
 
 
     // Add ambient light
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
     ambientLight.position.set(0, 0, 0);
+    ambientLight.castShadow = true;
     this.scene.add(ambientLight);
 
     // Add texture loader for heightmap
@@ -76,8 +78,9 @@ export class MainComponent implements AfterViewInit {
 
     // Create THREE Sphere
     const sphereGeometry = new THREE.SphereGeometry(1);
-    const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+    const sphereMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
     this.threeSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    this.threeSphere.castShadow = true;
     this.scene.add(this.threeSphere);
 
     // import custom Blender model
@@ -92,6 +95,7 @@ export class MainComponent implements AfterViewInit {
           (child as THREE.Mesh).material = new THREE.MeshStandardMaterial({
             color: Color.NAMES.rosybrown,
           });
+          gltf.scene.castShadow = true;
           }
         }
       )
@@ -104,7 +108,7 @@ export class MainComponent implements AfterViewInit {
     this.scene.add(axisHelper);
     const gridHelper = new THREE.GridHelper(20);
     this.scene.add(gridHelper);
-    const CameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
+    const CameraHelper = new THREE.CameraHelper(this.directionalLight.shadow.camera);
     this.scene.add(CameraHelper);
   }
 
@@ -116,7 +120,7 @@ export class MainComponent implements AfterViewInit {
 
     // Create CANNON Sphere
     this.cannonSphere = new CANNON.Body({
-      mass: 1,
+      mass: 3,
       shape: new CANNON.Sphere(1),
       position: new CANNON.Vec3(17.2, 10, 23),
     });
@@ -132,7 +136,7 @@ export class MainComponent implements AfterViewInit {
     // render the scene
     this.renderer.render(this.scene, this.camera);
     // animate physics
-    this.animate();
+    this.animate(delay);
     // loop
     requestAnimationFrame((delay) => this.render(delay));
   }
@@ -209,6 +213,7 @@ export class MainComponent implements AfterViewInit {
     this.map = new THREE.Mesh(geometry, material);
     this.map.receiveShadow = true;
     this.map.position.set(0, 0, 0);
+    this.map.castShadow = true;
 
     // Convert Three.js vertices to CANNON.Vec3
     const cannonVertices: CANNON.Vec3[] = [];
@@ -277,13 +282,37 @@ export class MainComponent implements AfterViewInit {
     );
   }
 
-  private animate() {
+  private animate(delay: DOMHighResTimeStamp) {
     // update physics
     this.physicsWorld.step(1 / 60);
-    this.cannonDebugger.update();
 
-    // link THREE Objects to CANNON Objects **************************************************************
+    // shows physics meshes
+    // this.cannonDebugger.update();
+
+    // update Objects ************************************************************************************
+
+    // directional light
+    const radius = 50;
+    const speed = 0.5;
+    const time = delay * 0.001 * speed;
+
+    const dLightX = Math.cos(time) * radius;
+    const dLightZ = Math.sin(time) * radius;
+
+    this.directionalLight.position.set(dLightX, -10, dLightZ);
+
+
+    // sphere
+    if(this.cannonSphere.position.y < -5 || this.cannonSphere.velocity.y < 0.01 && this.cannonSphere.velocity.y > 0 && this.cannonSphere.velocity.x <0.05  && this.cannonSphere.velocity.z <0.05 ){
+      const randomX = Math.random() * 32;
+      const randomZ = Math.random() * 32;
+      this.cannonSphere.position.set(randomX, 10, randomZ);
+      this.cannonSphere.velocity.set(0,0,0);
+    }
+
+    // link and update THREE Objects to CANNON Objects **************************************************************
     this.threeSphere.position.copy(this.convertToThreeVector(this.cannonSphere.position));
     this.threeSphere.quaternion.copy(this.convertToThreeQuaternion(this.cannonSphere.quaternion));
+
   }
 }

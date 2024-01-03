@@ -76,19 +76,19 @@
       },
       {
         "file": ".nx/cache/file-map.json",
-        "hash": "16462042238726745013"
+        "hash": "16759417809116638821"
       },
       {
         "file": ".nx/cache/lockfile.hash",
-        "hash": "16033312333316644164"
+        "hash": "6260393168333165806"
       },
       {
         "file": ".nx/cache/parsed-lock-file.json",
-        "hash": "7021855471339622154"
+        "hash": "15138990946100140368"
       },
       {
         "file": ".nx/cache/project-graph.json",
-        "hash": "7266737497233226597"
+        "hash": "16395053829447788962"
       },
       {
         "file": ".vscode/extensions.json",
@@ -156,7 +156,7 @@
       },
       {
         "file": "src/app/components/main/main.component.ts",
-        "hash": "5186961135976711924"
+        "hash": "16942768882973284360"
       },
       {
         "file": "src/app/home/home-routing.module.ts",
@@ -185,6 +185,10 @@
       {
         "file": "src/assets/icon/favicon.png",
         "hash": "17482944836898362639"
+      },
+      {
+        "file": "src/assets/models/simpleGolem.glb",
+        "hash": "6381748489324263524"
       },
       {
         "file": "src/assets/shapes.svg",
