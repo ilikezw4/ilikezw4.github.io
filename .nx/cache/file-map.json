@@ -12,6 +12,9 @@
     "@angular/router": "^17.0.2",
     "@capacitor/camera": "^5.0.8",
     "@ionic/angular": "^7.0.0",
+    "cannon-es": "^0.20.0",
+    "cannon-es-debugger": "^1.0.0",
+    "cannon-utils": "^0.1.4",
     "ionicons": "^7.0.0",
     "rxjs": "~7.8.0",
     "three": "^0.156.1",
@@ -31,6 +34,7 @@
     "@types/three": "^0.160.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "angular-cli-ghpages": "^0.6.2",
     "eslint": "^7.26.0",
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jsdoc": "30.7.6",
@@ -63,12 +67,16 @@
         "hash": "18210278994710539225"
       },
       {
+        "file": ".github/workflows/jekyll-gh-pages.yml",
+        "hash": "16751799378509846368"
+      },
+      {
         "file": ".gitignore",
         "hash": "91109559695469517"
       },
       {
         "file": ".nx/cache/file-map.json",
-        "hash": "16750160671633874550"
+        "hash": "16462042238726745013"
       },
       {
         "file": ".nx/cache/lockfile.hash",
@@ -104,11 +112,11 @@
       },
       {
         "file": "package-lock.json",
-        "hash": "2120629629584072884"
+        "hash": "627613494426501926"
       },
       {
         "file": "package.json",
-        "hash": "14927478244169214661"
+        "hash": "16295865793348838351"
       },
       {
         "file": "src/app/app-routing.module.ts",
@@ -148,7 +156,7 @@
       },
       {
         "file": "src/app/components/main/main.component.ts",
-        "hash": "1503615359727080019"
+        "hash": "5186961135976711924"
       },
       {
         "file": "src/app/home/home-routing.module.ts",
@@ -197,6 +205,14 @@
       {
         "file": "src/assets/texture/Sample.jpg",
         "hash": "999170718111657734"
+      },
+      {
+        "file": "src/assets/texture/nMapTest.png",
+        "hash": "9182955651484506619"
+      },
+      {
+        "file": "src/assets/texture/nMapTestSample.png",
+        "hash": "4106184495977565196"
       },
       {
         "file": "src/environments/environment.prod.ts",

@@ -2,18 +2,19 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import * as THREE from 'three';
 import {
-  BufferGeometry,
+  BufferGeometry, Color,
   Mesh,
   MeshPhongMaterial,
   MeshStandardMaterial,
   PerspectiveCamera,
   Scene,
-  Texture,
+  Texture, TypedArray,
   WebGLRenderer,
 } from 'three';
 import * as CANNON from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 
 @Component({
   selector: 'app-main',
@@ -57,14 +58,23 @@ export class MainComponent implements AfterViewInit {
 
     // Add directional light
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(1, 1, 1).normalize();
+    directionalLight.position.set(-10, 1, 0);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.camera.top = 1;
     this.scene.add(directionalLight);
 
     // Add camera controls
     const controls = new OrbitControls(this.camera, this.canvasRef.nativeElement);
+    const axisHelper = new THREE.AxesHelper(5);
+    this.scene.add(axisHelper);
+    const gridHelper = new THREE.GridHelper(20);
+    this.scene.add(gridHelper);
+    const CameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
+    this.scene.add(CameraHelper);
 
     // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+    ambientLight.position.set(0, 0, 0);
     this.scene.add(ambientLight);
 
     // Add texture loader for heightmap
@@ -76,6 +86,24 @@ export class MainComponent implements AfterViewInit {
     const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
     this.threeSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
     this.scene.add(this.threeSphere);
+
+    // import custom Blender model
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.load('assets/models/simpleGolem.glb',  (gltf) =>{
+      gltf.scene.scale.set(0.5, 0.5, 0.5);
+      gltf.scene.position.set(15,5.3,10)
+      gltf.scene.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          (child as THREE.Mesh).castShadow = true;
+          (child as THREE.Mesh).receiveShadow = true;
+          (child as THREE.Mesh).material = new THREE.MeshStandardMaterial({
+            color: Color.NAMES.rosybrown,
+          });
+          }
+        }
+      )
+      this.scene.add(gltf.scene);
+    });
   }
 
   private createPhysicsWorld() {
@@ -88,7 +116,7 @@ export class MainComponent implements AfterViewInit {
     this.cannonSphere = new CANNON.Body({
       mass: 1,
       shape: new CANNON.Sphere(1),
-      position: new CANNON.Vec3(0, 10, 0),
+      position: new CANNON.Vec3(10, 10, 4.8),
     });
 
     // Add a Sphere to the physics world
@@ -172,13 +200,13 @@ export class MainComponent implements AfterViewInit {
       // normal map
       normalMap: new THREE.TextureLoader().load('assets/texture/NormalMapSample.jpg'),
       map: new THREE.TextureLoader().load('assets/texture/Sample.jpg'),
-      // for double sided rendering
-      side: THREE.DoubleSide,
+      side: THREE.BackSide,
     });
 
     // Create map mesh
     this.map = new THREE.Mesh(geometry, material);
     this.map.receiveShadow = true;
+    this.map.position.set(0, 0, 0);
 
     // Convert Three.js vertices to CANNON.Vec3
     const cannonVertices: CANNON.Vec3[] = [];
@@ -226,7 +254,6 @@ export class MainComponent implements AfterViewInit {
     this.generateTerrain(data);
   }
 
-  // Helper function to convert flat array to array of arrays
   private chunkArray(array: number[], chunkSize: number): number[][] {
     const result = [];
     for (let i = 0; i < array.length; i += chunkSize) {
