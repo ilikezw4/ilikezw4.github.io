@@ -76,7 +76,7 @@
       },
       {
         "file": ".nx/cache/file-map.json",
-        "hash": "16759417809116638821"
+        "hash": "2088273836757441454"
       },
       {
         "file": ".nx/cache/lockfile.hash",
@@ -156,7 +156,7 @@
       },
       {
         "file": "src/app/components/main/main.component.ts",
-        "hash": "16942768882973284360"
+        "hash": "12982715142725465386"
       },
       {
         "file": "src/app/home/home-routing.module.ts",
@@ -189,6 +189,10 @@
       {
         "file": "src/assets/models/simpleGolem.glb",
         "hash": "6381748489324263524"
+      },
+      {
+        "file": "src/assets/models/simpleGolem_wAnim.glb",
+        "hash": "3100311370522936251"
       },
       {
         "file": "src/assets/shapes.svg",

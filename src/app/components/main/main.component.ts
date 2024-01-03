@@ -118,7 +118,7 @@ export class MainComponent implements AfterViewInit {
     });
 
     // Add camera controls
-    // const controls = new OrbitControls(this.camera, this.canvasRef.nativeElement);
+    const controls = new OrbitControls(this.camera, this.canvasRef.nativeElement);
     // const axisHelper = new THREE.AxesHelper(5);
     // this.scene.add(axisHelper);
     // const gridHelper = new THREE.GridHelper(20);
