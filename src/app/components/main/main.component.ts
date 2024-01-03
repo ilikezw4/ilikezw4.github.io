@@ -63,14 +63,7 @@ export class MainComponent implements AfterViewInit {
     directionalLight.shadow.camera.top = 1;
     this.scene.add(directionalLight);
 
-    // Add camera controls
-    const controls = new OrbitControls(this.camera, this.canvasRef.nativeElement);
-    const axisHelper = new THREE.AxesHelper(5);
-    this.scene.add(axisHelper);
-    const gridHelper = new THREE.GridHelper(20);
-    this.scene.add(gridHelper);
-    const CameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
-    this.scene.add(CameraHelper);
+
 
     // Add ambient light
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
@@ -104,6 +97,15 @@ export class MainComponent implements AfterViewInit {
       )
       this.scene.add(gltf.scene);
     });
+
+    // Add camera controls
+    const controls = new OrbitControls(this.camera, this.canvasRef.nativeElement);
+    const axisHelper = new THREE.AxesHelper(5);
+    this.scene.add(axisHelper);
+    const gridHelper = new THREE.GridHelper(20);
+    this.scene.add(gridHelper);
+    const CameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
+    this.scene.add(CameraHelper);
   }
 
   private createPhysicsWorld() {
@@ -116,7 +118,7 @@ export class MainComponent implements AfterViewInit {
     this.cannonSphere = new CANNON.Body({
       mass: 1,
       shape: new CANNON.Sphere(1),
-      position: new CANNON.Vec3(10, 10, 4.8),
+      position: new CANNON.Vec3(17.2, 10, 23),
     });
 
     // Add a Sphere to the physics world
