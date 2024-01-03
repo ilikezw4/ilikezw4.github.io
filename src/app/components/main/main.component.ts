@@ -34,10 +34,13 @@ export class MainComponent implements AfterViewInit {
   private physicsWorld!: CANNON.World;
   private cannonDebugger!: any;
   private cannonSphere!: CANNON.Body;
+  private cannonCube!: CANNON.Body;
+  private threeCube!: Mesh<BufferGeometry, MeshStandardMaterial>;
   private threeSphere!: Mesh<BufferGeometry, MeshPhongMaterial>;
   private terrainShape!: CANNON.ConvexPolyhedron;
   private cannonTerrain!: CANNON.Body;
   private directionalLight!: THREE.DirectionalLight;
+  private mixer!: THREE.AnimationMixer;
 
   ngAfterViewInit(): void {
     // Setup scene
@@ -83,15 +86,27 @@ export class MainComponent implements AfterViewInit {
     this.threeSphere.castShadow = true;
     this.scene.add(this.threeSphere);
 
+    // Create THREE Cube
+    const cubeGeometry = new THREE.BoxGeometry(2,2,2);
+    const cubeMaterial = new THREE.MeshStandardMaterial({ color: 0xffff });
+    this.threeCube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    this.threeCube.castShadow = true;
+    this.scene.add(this.threeCube);
+
     // import custom Blender model
     const gltfLoader = new GLTFLoader();
-    gltfLoader.load('assets/models/simpleGolem.glb',  (gltf) =>{
+    gltfLoader.load('assets/models/simpleGolem_wAnim.glb',  (gltf) =>{
       gltf.scene.scale.set(0.5, 0.5, 0.5);
       gltf.scene.position.set(15,5.3,10)
       gltf.scene.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
           (child as THREE.Mesh).castShadow = true;
           (child as THREE.Mesh).receiveShadow = true;
+          this.mixer = new THREE.AnimationMixer(child);
+          const clips = gltf.animations;
+          if(clips.length > 0) {
+            this.mixer.clipAction(clips[0]).play();
+          }
           (child as THREE.Mesh).material = new THREE.MeshStandardMaterial({
             color: Color.NAMES.rosybrown,
           });
@@ -103,13 +118,13 @@ export class MainComponent implements AfterViewInit {
     });
 
     // Add camera controls
-    const controls = new OrbitControls(this.camera, this.canvasRef.nativeElement);
-    const axisHelper = new THREE.AxesHelper(5);
-    this.scene.add(axisHelper);
-    const gridHelper = new THREE.GridHelper(20);
-    this.scene.add(gridHelper);
-    const CameraHelper = new THREE.CameraHelper(this.directionalLight.shadow.camera);
-    this.scene.add(CameraHelper);
+    // const controls = new OrbitControls(this.camera, this.canvasRef.nativeElement);
+    // const axisHelper = new THREE.AxesHelper(5);
+    // this.scene.add(axisHelper);
+    // const gridHelper = new THREE.GridHelper(20);
+    // this.scene.add(gridHelper);
+    // const CameraHelper = new THREE.CameraHelper(this.directionalLight.shadow.camera);
+    // this.scene.add(CameraHelper);
   }
 
   private createPhysicsWorld() {
@@ -124,9 +139,20 @@ export class MainComponent implements AfterViewInit {
       shape: new CANNON.Sphere(1),
       position: new CANNON.Vec3(17.2, 10, 23),
     });
-
     // Add a Sphere to the physics world
     this.physicsWorld.addBody(this.cannonSphere);
+
+    this.cannonCube = new CANNON.Body({
+      mass: 1,
+      shape: new CANNON.Sphere(1),
+      position: new CANNON.Vec3(25, 10, 1),
+    });
+    // this.cannonCube.addEventListener("collide", (event: any) => {
+    //   console.log("Cube collided with:", event.body); // Log the colliding body
+    // });
+
+    // Add Cube to the physics world
+    this.physicsWorld.addBody(this.cannonCube);
 
     // Add debugger for physics world
     this.cannonDebugger = new (CannonDebugger as any)(this.scene, this.physicsWorld);
@@ -138,6 +164,7 @@ export class MainComponent implements AfterViewInit {
     // animate physics
     this.animate(delay);
     // loop
+
     requestAnimationFrame((delay) => this.render(delay));
   }
 
@@ -288,7 +315,6 @@ export class MainComponent implements AfterViewInit {
 
     // shows physics meshes
     // this.cannonDebugger.update();
-
     // update Objects ************************************************************************************
 
     // directional light
@@ -310,9 +336,25 @@ export class MainComponent implements AfterViewInit {
       this.cannonSphere.velocity.set(0,0,0);
     }
 
+    if(this.cannonCube.position.y < -5 || this.cannonCube.velocity.y < 0.01 && this.cannonCube.velocity.y > 0 && this.cannonCube.velocity.x <0.05  && this.cannonCube.velocity.z <0.05){
+      const randomX = Math.random() * 32;
+      const randomZ = Math.random() * 32;
+      this.cannonCube.position.set(randomX, 10, randomZ);
+      this.cannonCube.velocity.set(0,0,0);
+    }
+
     // link and update THREE Objects to CANNON Objects **************************************************************
     this.threeSphere.position.copy(this.convertToThreeVector(this.cannonSphere.position));
     this.threeSphere.quaternion.copy(this.convertToThreeQuaternion(this.cannonSphere.quaternion));
+
+    this.threeCube.position.copy(this.convertToThreeVector(this.cannonCube.position));
+    this.threeCube.quaternion.copy(this.convertToThreeQuaternion(this.cannonCube.quaternion));
+
+    try{
+      this.mixer.update( 0.005);
+    }catch (e) {
+      console.log(e)
+    }
 
   }
 }
