@@ -8,7 +8,7 @@ import {
   MeshStandardMaterial,
   PerspectiveCamera,
   Scene,
-  Texture, TypedArray,
+  Texture, TextureLoader, TypedArray,
   WebGLRenderer,
 } from 'three';
 import * as CANNON from 'cannon-es';
@@ -54,6 +54,7 @@ export class MainComponent implements AfterViewInit {
   private createScene() {
     // Setup scene and camera
     this.scene = new THREE.Scene();
+    // this.scene.background = new TextureLoader().load('assets/texture/skyBackground.jpg');
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
     // Add renderer
