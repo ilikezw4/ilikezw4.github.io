@@ -60,6 +60,7 @@ export class MainComponent implements AfterViewInit {
     // Add renderer
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvasRef.nativeElement, alpha: true });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.shadowMap.enabled = true;
 
     // Add directional light
     this.directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
